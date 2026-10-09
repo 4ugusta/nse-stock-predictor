@@ -188,3 +188,7 @@ This tool is for educational and informational purposes only. It does not consti
 ## License
 
 MIT License
+
+---
+
+Built by [Augusta Bhardwaj](https://4ugusta.dev). More projects and writing at [4ugusta.dev](https://4ugusta.dev).
