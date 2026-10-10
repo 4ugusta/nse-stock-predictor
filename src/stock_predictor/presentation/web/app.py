@@ -1,7 +1,7 @@
 """Streamlit web dashboard for NSE Stock Predictor."""
 
-from decimal import Decimal
 import streamlit as st
+from stock_predictor.presentation.sizing import position_sizes
 
 from stock_predictor.infrastructure.data_providers.yahoo_provider import YahooDataProvider
 
@@ -283,24 +283,13 @@ def show_stock_analysis() -> None:
 
         # Position sizing suggestion
         if signal.stop_loss and signal.entry_price and signal.signal_type.value not in ("hold", "no_edge"):
-            risk_per_share = abs(signal.entry_price - signal.stop_loss)
-            if risk_per_share > 0:
+            rows = position_sizes(signal.entry_price, signal.stop_loss)
+            if rows:
                 with st.expander("Position Sizing (1% capital risk per trade)"):
-                    sizing_data = []
-                    for capital in [100_000, 500_000, 1_000_000]:
-                        risk_amount = capital * Decimal("0.01")  # prices are Decimal; a float here raised TypeError
-                        shares = int(risk_amount / risk_per_share)
-                        if shares > 0:
-                            cost = shares * signal.entry_price
-                            max_loss = shares * risk_per_share
-                            sizing_data.append({
-                                "Capital": f"₹{capital / 100_000:.0f}L",
-                                "Shares": shares,
-                                "Investment": f"₹{cost:,.0f}",
-                                "Max Loss": f"₹{max_loss:,.0f}",
-                            })
-                    if sizing_data:
-                        st.dataframe(sizing_data, hide_index=True, width="stretch")
+                    st.dataframe(
+                        [{"Capital": f"₹{r.capital / 100_000:.0f}L", "Shares": r.shares, "Investment": f"₹{r.cost:,.0f}", "Max Loss": f"₹{r.max_loss:,.0f}"} for r in rows],
+                        hide_index=True, width="stretch",
+                    )
 
         # Historical accuracy
         try:

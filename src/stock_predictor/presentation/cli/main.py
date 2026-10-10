@@ -1,6 +1,5 @@
 """CLI entry point for NSE Stock Predictor."""
 
-from decimal import Decimal
 import typer
 from rich.console import Console
 from rich.panel import Panel
@@ -25,6 +24,7 @@ from stock_predictor.infrastructure.config.constants import (
 )
 from stock_predictor.analysis.performance_tracker import PerformanceTracker
 from stock_predictor.infrastructure.data_providers.yahoo_provider import YahooDataProvider
+from stock_predictor.presentation.sizing import position_sizes
 from stock_predictor.infrastructure.news_providers.aggregator import NewsAggregator
 
 app = typer.Typer(
@@ -252,18 +252,8 @@ def analyze(
                     sizing_table.add_column("Shares", justify="right")
                     sizing_table.add_column("Investment", justify="right")
                     sizing_table.add_column("Max Loss", justify="right", style="red")
-                    for capital in [100_000, 500_000, 1_000_000]:
-                        risk_amount = capital * Decimal("0.01")  # prices are Decimal; a float here raised TypeError
-                        shares = int(risk_amount / risk_per_share)
-                        if shares > 0:
-                            cost = shares * signal.entry_price
-                            max_loss = shares * risk_per_share
-                            sizing_table.add_row(
-                                f"₹{capital / 100_000:.0f}L",
-                                str(shares),
-                                f"₹{cost:,.0f}",
-                                f"₹{max_loss:,.0f}",
-                            )
+                    for r in position_sizes(signal.entry_price, signal.stop_loss):
+                        sizing_table.add_row(f"₹{r.capital / 100_000:.0f}L", str(r.shares), f"₹{r.cost:,.0f}", f"₹{r.max_loss:,.0f}")
                     console.print(sizing_table)
 
         # Show data freshness
