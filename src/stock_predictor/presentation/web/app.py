@@ -1,5 +1,6 @@
 """Streamlit web dashboard for NSE Stock Predictor."""
 
+from decimal import Decimal
 import streamlit as st
 
 from stock_predictor.infrastructure.data_providers.yahoo_provider import YahooDataProvider
@@ -287,7 +288,7 @@ def show_stock_analysis() -> None:
                 with st.expander("Position Sizing (1% capital risk per trade)"):
                     sizing_data = []
                     for capital in [100_000, 500_000, 1_000_000]:
-                        risk_amount = capital * 0.01
+                        risk_amount = capital * Decimal("0.01")  # prices are Decimal; a float here raised TypeError
                         shares = int(risk_amount / risk_per_share)
                         if shares > 0:
                             cost = shares * signal.entry_price

@@ -1,5 +1,6 @@
 """CLI entry point for NSE Stock Predictor."""
 
+from decimal import Decimal
 import typer
 from rich.console import Console
 from rich.panel import Panel
@@ -252,7 +253,7 @@ def analyze(
                     sizing_table.add_column("Investment", justify="right")
                     sizing_table.add_column("Max Loss", justify="right", style="red")
                     for capital in [100_000, 500_000, 1_000_000]:
-                        risk_amount = capital * 0.01
+                        risk_amount = capital * Decimal("0.01")  # prices are Decimal; a float here raised TypeError
                         shares = int(risk_amount / risk_per_share)
                         if shares > 0:
                             cost = shares * signal.entry_price
